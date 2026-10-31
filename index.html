@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Descanso médico: recorrido</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Recorrido inmersivo: una escena fija a pantalla completa; el scroll acerca la imagen (profundidad), cambia de vista y muestra los datos del área. Al final, el presupuesto. */
+:root {
+  --bg: #f5f2ec;
+  --surface: #ffffff;
+  --fg: #22262b;
+  --muted: #6b6f75;
+  --line: #ddd8cf;
+  --accent: #33394c;
+  --accent-soft: #e6e9f0;
+  --photo-ink: #ffffff;
+  --photo-scrim: rgba(10, 12, 18, .82);
+  --photo-chip: rgba(255, 255, 255, .16);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15171c;
+    --surface: #1e2129;
+    --fg: #efece6;
+    --muted: #9ea3ab;
+    --line: #2f333d;
+    --accent: #c9d4e6;
+    --accent-soft: #262b37;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15171c;
+  --surface: #1e2129;
+  --fg: #efece6;
+  --muted: #9ea3ab;
+  --line: #2f333d;
+  --accent: #c9d4e6;
+  --accent-soft: #262b37;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+/* Portada */
+.cover { min-height: 90vh; display: grid; align-content: center; gap: 14px; padding-block: 64px 40px; max-width: 1040px; margin: 0 auto; }
+.cover h1 { font-size: clamp(34px, 6vw, 64px); line-height: 1.05; margin: 0; font-weight: 300; letter-spacing: -.01em; text-wrap: balance; }
+.cover p { margin: 0; color: var(--muted); max-width: 60ch; font-size: 18px; }
+.scroll-hint { color: var(--muted); font-size: 14px; margin-top: 24px; }
+
+/* Recorrido: la pista da la distancia de scroll y la escena queda fija */
+.tour {
+  position: relative;
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+}
+.stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #0b0d12; }
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.scene img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: 50% 55%; will-change: transform; }
+.shade { position: absolute; inset: 0; pointer-events: none; z-index: 20;
+  background: linear-gradient(to top, var(--photo-scrim) 0%, rgba(10,12,18,0) 52%), linear-gradient(to bottom, rgba(10,12,18,.55) 0%, rgba(10,12,18,0) 22%); }
+
+.hud { position: absolute; z-index: 30; color: var(--photo-ink); }
+.hud-top { top: max(18px, env(safe-area-inset-top, 0px)); left: max(20px, env(safe-area-inset-left, 0px)); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+.hud-top b { display: block; font-weight: 600; margin-bottom: 2px; }
+.hud-top span { opacity: .8; }
+.toggle { top: max(14px, env(safe-area-inset-top, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); font: inherit; font-size: 13px; color: var(--photo-ink);
+  background: var(--photo-chip); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.toggle:focus-visible, .dots button:focus-visible { outline: 2px solid var(--photo-ink); outline-offset: 3px; }
+.dots { right: max(18px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: 12px; }
+.dots button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 1.5px solid var(--photo-ink); background: transparent; cursor: pointer; opacity: .7; }
+.dots button[aria-current="true"] { background: var(--photo-ink); opacity: 1; }
+
+.info { position: absolute; z-index: 30; left: max(20px, env(safe-area-inset-left, 0px)); right: max(20px, env(safe-area-inset-right, 0px)); bottom: max(28px, env(safe-area-inset-bottom, 0px));
+  max-width: 760px; color: var(--photo-ink); opacity: 0; pointer-events: none; will-change: transform, opacity; }
+.info .area { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; opacity: .85; }
+.info h2 { margin: 6px 0 8px; font-size: clamp(28px, 5vw, 54px); font-weight: 300; line-height: 1.08; text-wrap: balance; }
+.info p { margin: 0 0 14px; font-size: clamp(15px, 2vw, 18px); max-width: 56ch; opacity: .92; }
+.info ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.info li { background: var(--photo-chip); border: 1px solid rgba(255,255,255,.25); border-radius: 999px; padding: 5px 13px; font-size: 13px; backdrop-filter: blur(6px); }
+
+/* Presupuesto */
+.budget { max-width: 1040px; margin: 0 auto; padding-block: 72px 96px; }
+.budget h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 300; margin: 8px 0 22px; }
+.totals { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 28px; }
+.totals div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.totals small { color: var(--muted); display: block; font-size: 13px; }
+.totals b { font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; min-width: 560px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; font-size: 15px; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+td.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+td .m { color: var(--muted); font-size: 13px; display: block; }
+.porcot { color: var(--muted); font-style: italic; white-space: nowrap; }
+tr.sub td { background: var(--accent-soft); font-weight: 600; }
+.note { margin-top: 18px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="eyebrow">Hospital San Diego de Alcalá · Visita virtual</div>
+  <h1>Área de descanso médico</h1>
+  <p>Entra a cada vista del proyecto con el scroll. En cada una verás los datos del área y, al final, el presupuesto de todo lo que se va a hacer.</p>
+  <div class="scroll-hint">Desplázate para entrar</div>
+</section>
+
+<section class="tour" id="tour" aria-label="Recorrido por las ocho vistas">
+  <div class="stage" id="stage">
+    <div class="shade"></div>
+    <div class="hud hud-top"><b>Descanso médico</b><span id="counter"></span></div>
+    <button class="hud toggle" id="toggle" type="button" aria-pressed="true">Profundidad: sí</button>
+    <div class="hud dots" id="dots" aria-label="Ir a una vista"></div>
+  </div>
+</section>
+
+<section class="budget" id="presupuesto">
+  <div class="eyebrow">Presupuesto</div>
+  <h2>Todo lo que se va a hacer</h2>
+
+  <div class="totals">
+    <div><small>Cotizado</small><b>$10,203</b></div>
+    <div><small>Partidas por cotizar</small><b>10</b></div>
+    <div><small>Plazo de la obra de muro</small><b>2 semanas</b></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Partida</th><th>Área</th><th class="n">Importe (MXN)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Muro divisorio de tablaroca<span class="m">Materiales $5,503 + mano de obra $3,500 + pintura $1,200</span></td><td>Muros</td><td class="n">$10,203</td></tr>
+        <tr><td>Canal de amarre 6.35 cm (5 pzas)<span class="m">Sin precio en Home Depot</span></td><td>Muros</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Tornillos metal-metal y taquetes<span class="m">Sin precio confirmado</span></td><td>Muros</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Refrigerador French door gris</td><td>Barra y cocina</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Gabinetes superiores con vitrinas y bajos</td><td>Barra y cocina</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Cubierta color crema con fregadero doble y llave</td><td>Barra y cocina</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>2 bancos altos de barra</td><td>Barra y cocina</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Sofá de 3 plazas</td><td>Zona de estar</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Sofá de 2 plazas</td><td>Zona de estar</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>2 sillones individuales</td><td>Zona de estar</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Mesa de centro rectangular</td><td>Zona de estar</td><td class="n porcot">Por cotizar</td></tr>
+        <tr><td>Segunda etiqueta "Barra de café" 0.60 m<span class="m">Pendiente de confirmar en el plano</span></td><td>Muros</td><td class="n porcot">Por confirmar</td></tr>
+        <tr class="sub"><td colspan="2">Total cotizado a la fecha</td><td class="n">$10,203 + 10 partidas por cotizar y 1 por confirmar</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Solo el muro tiene cotización formal. El resto de las partidas se cotiza por separado; no se incluye un monto estimado. El muro no incluye canales, tornillos metal-metal, taquetes ni transporte. El piso cerámico y la puerta de madera ya existen, así que no se incluyen en el presupuesto.</p>
+</section>
+
+<script>
+const VIEWS = [
+  { img: "img/vista1.jpg", area: "Zona de estar", title: "Vista aérea general", desc: "Planta completa del área de descanso, con la zona de estar y la barra al fondo.", furn: ["Sofá de 3 plazas", "Sofá de 2 plazas", "2 sillones individuales", "Mesa de centro"] },
+  { img: "img/vista2.jpg", area: "Acceso", title: "Vista aérea desde el acceso", desc: "Otra vista elevada, con la cocina de un lado y la zona de estar del otro.", furn: ["Barra con refrigerador", "2 bancos altos", "Sillón individual", "Sofá de 2 plazas"] },
+  { img: "img/vista3.jpg", area: "Barra y cocina", title: "Barra de café", desc: "Frente a la cocina: gabinetes, fregadero y los dos bancos altos.", furn: ["Refrigerador French door gris", "Gabinetes con vitrinas", "Fregadero doble con llave", "2 bancos altos"] },
+  { img: "img/vista4.jpg", area: "Zona de estar", title: "Sillones y televisor", desc: "Sofá de 2 plazas y sillones frente al televisor montado en el muro.", furn: ["Sofá de 2 plazas", "2 sillones individuales", "Televisor en muro", "Repisa flotante"] },
+  { img: "img/vista5.jpg", area: "Muros y acabados", title: "Televisor y puerta", desc: "Muro de la TV con la puerta de madera a la derecha.", furn: ["Televisor con repisa", "Puerta de madera", "Piso cerámico claro", "Sofá de 3 plazas"] },
+  { img: "img/vista6.jpg", area: "Zona de estar", title: "Vista cenital", desc: "Distribución completa desde arriba: sofás alrededor de la mesa.", furn: ["Sofá de 2 plazas y sillón", "Sofá de 3 plazas", "Mesa de centro", "Barra con 2 bancos"] },
+  { img: "img/vista7.jpg", area: "Barra y cocina", title: "Sofá y barra", desc: "Sofá de 3 plazas a la izquierda y la barra con refrigerador al fondo.", furn: ["Refrigerador gris", "Gabinetes y cubierta crema", "2 bancos altos", "Sillón individual"] },
+  { img: "img/vista8.jpg", area: "Barra y cocina", title: "Entrada desde el umbral", desc: "Vista desde la entrada hacia la barra y la zona de estar.", furn: ["Refrigerador", "Gabinetes y fregadero", "2 bancos altos", "Sillón individual"] }
+];
+const N = VIEWS.length;
+const $ = id => document.getElementById(id);
+const tour = $("tour"), stage = $("stage"), dots = $("dots"), counter = $("counter"), toggle = $("toggle");
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+let depth = !reduce.matches;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => x * x * (3 - 2 * x);
+
+const scenes = VIEWS.map((v, k) => {
+  const el = document.createElement("div");
+  el.className = "scene";
+  el.style.zIndex = k + 1;
+  const img = document.createElement("img");
+  img.src = v.img; img.alt = v.title;
+  el.appendChild(img);
+  const info = document.createElement("div");
+  info.className = "info";
+  info.style.zIndex = 40 + k;
+  info.innerHTML = '<div class="area"></div><h2></h2><p></p><ul></ul>';
+  info.querySelector(".area").textContent = v.area;
+  info.querySelector("h2").textContent = v.title;
+  info.querySelector("p").textContent = v.desc;
+  v.furn.forEach(f => { const li = document.createElement("li"); li.textContent = f; info.querySelector("ul").appendChild(li); });
+  stage.insertBefore(el, stage.firstChild);
+  stage.appendChild(info);
+  const d = document.createElement("button");
+  d.type = "button"; d.setAttribute("aria-label", "Ir a la vista " + (k + 1) + ": " + v.title);
+  d.onclick = () => goTo(k);
+  dots.appendChild(d);
+  return { el, img, info, dot: d };
+});
+
+// Las escenas quedan en orden inverso al insertarlas; se reordena por z-index, así que basta con z-index creciente.
+function setHeight() { tour.style.height = (N * 1.4 * innerHeight + innerHeight) + "px"; }
+
+function update() {
+  const rect = tour.getBoundingClientRect();
+  const range = tour.offsetHeight - innerHeight;
+  const f = clamp(-rect.top / range) * N;
+  scenes.forEach((s, k) => {
+    const t = f - k;
+    s.el.style.opacity = k === 0 ? 1 : ease(clamp((t + 0.2) / 0.2));
+    const z = depth ? 1 + 0.24 * clamp((t + 0.2) / 1.2) : 1;
+    s.img.style.transform = "scale(" + z + ")";
+    const inn = ease(clamp((t - 0.08) / 0.22));
+    const out = k === N - 1 ? 0 : ease(clamp((t - 0.78) / 0.2));
+    const show = inn * (1 - out);
+    s.info.style.opacity = show;
+    s.info.style.transform = "translate3d(0," + ((1 - show) * 28) + "px,0)";
+  });
+  const cur = clamp(Math.floor(f + 0.2), 0, N - 1);
+  scenes.forEach((s, k) => s.dot.setAttribute("aria-current", k === cur));
+  counter.textContent = "Vista " + (cur + 1) + " de " + N + " · " + VIEWS[cur].area;
+}
+
+function goTo(k) {
+  const range = tour.offsetHeight - innerHeight;
+  const top = window.scrollY + tour.getBoundingClientRect().top + ((k + 0.45) / N) * range;
+  window.scrollTo({ top, behavior: depth ? "smooth" : "auto" });
+}
+
+toggle.onclick = () => {
+  depth = !depth;
+  toggle.textContent = "Profundidad: " + (depth ? "sí" : "no");
+  toggle.setAttribute("aria-pressed", depth);
+  update();
+};
+toggle.textContent = "Profundidad: " + (depth ? "sí" : "no");
+toggle.setAttribute("aria-pressed", depth);
+
+let queued = false;
+const req = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; update(); }); } };
+addEventListener("scroll", req, { passive: true });
+addEventListener("resize", () => { setHeight(); req(); });
+setHeight();
+update();
+</script>
+</body>
+</html>
