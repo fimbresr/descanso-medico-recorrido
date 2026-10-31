@@ -105,6 +105,18 @@ td .m { color: var(--muted); font-size: 13px; display: block; }
 .porcot { color: var(--muted); font-style: italic; white-space: nowrap; }
 tr.sub td { background: var(--accent-soft); font-weight: 600; }
 .note { margin-top: 18px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+
+/* Galería: cada vista se puede ver por separado */
+.gallery { max-width: 1040px; margin: 0 auto; padding-block: 72px 96px; border-top: 1px solid var(--line); }
+.gallery h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 300; margin: 8px 0 22px; }
+.gallery-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.gallery figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.gallery img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+.gallery figcaption { padding: 12px 14px 14px; display: grid; gap: 4px; }
+.gallery figcaption .num { color: var(--muted); font-size: 13px; }
+.gallery figcaption b { font-weight: 500; }
+.gallery figcaption a { color: var(--accent); font-size: 14px; text-decoration: none; border-bottom: 1px solid var(--line); justify-self: start; }
+.gallery figcaption a:hover, .gallery figcaption a:focus-visible { border-bottom-color: var(--accent); outline: none; }
 </style>
 </head>
 <body>
@@ -158,6 +170,45 @@ tr.sub td { background: var(--accent-soft); font-weight: 600; }
     </table>
   </div>
   <p class="note">Solo el muro tiene cotización formal. El resto de las partidas se cotiza por separado; no se incluye un monto estimado. El muro no incluye canales, tornillos metal-metal, taquetes ni transporte. El piso cerámico y la puerta de madera ya existen, así que no se incluyen en el presupuesto.</p>
+</section>
+
+<section class="gallery" id="galeria" aria-label="Galería de vistas">
+  <div class="eyebrow">Galería</div>
+  <h2>Las ocho vistas por separado</h2>
+  <div class="gallery-grid">
+    <figure>
+      <img src="img/vista1.jpg" alt="Vista aérea general" loading="lazy">
+      <figcaption><span class="num">Vista 1 de 8 · Zona de estar</span><b>Vista aérea general</b><a href="img/vista1.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista2.jpg" alt="Vista aérea desde el acceso" loading="lazy">
+      <figcaption><span class="num">Vista 2 de 8 · Acceso</span><b>Vista aérea desde el acceso</b><a href="img/vista2.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista3.jpg" alt="Barra de café" loading="lazy">
+      <figcaption><span class="num">Vista 3 de 8 · Barra y cocina</span><b>Barra de café</b><a href="img/vista3.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista4.jpg" alt="Sillones y televisor" loading="lazy">
+      <figcaption><span class="num">Vista 4 de 8 · Zona de estar</span><b>Sillones y televisor</b><a href="img/vista4.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista5.jpg" alt="Televisor y puerta" loading="lazy">
+      <figcaption><span class="num">Vista 5 de 8 · Muros y acabados</span><b>Televisor y puerta</b><a href="img/vista5.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista6.jpg" alt="Vista cenital" loading="lazy">
+      <figcaption><span class="num">Vista 6 de 8 · Zona de estar</span><b>Vista cenital</b><a href="img/vista6.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista7.jpg" alt="Sofá y barra" loading="lazy">
+      <figcaption><span class="num">Vista 7 de 8 · Barra y cocina</span><b>Sofá y barra</b><a href="img/vista7.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+    <figure>
+      <img src="img/vista8.jpg" alt="Entrada desde el umbral" loading="lazy">
+      <figcaption><span class="num">Vista 8 de 8 · Barra y cocina</span><b>Entrada desde el umbral</b><a href="img/vista8.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
+    </figure>
+  </div>
 </section>
 
 <script>
