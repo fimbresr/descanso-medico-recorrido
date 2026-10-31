@@ -117,6 +117,13 @@ tr.sub td { background: var(--accent-soft); font-weight: 600; }
 .gallery figcaption b { font-weight: 500; }
 .gallery figcaption a { color: var(--accent); font-size: 14px; text-decoration: none; border-bottom: 1px solid var(--line); justify-self: start; }
 .gallery figcaption a:hover, .gallery figcaption a:focus-visible { border-bottom-color: var(--accent); outline: none; }
+
+/* Plano de planta con el muro nuevo */
+.plan { max-width: 1040px; margin: 0 auto; padding-block: 72px 96px; border-top: 1px solid var(--line); }
+.plan h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 300; margin: 8px 0 14px; }
+.plan > p { margin: 0 0 22px; color: var(--muted); max-width: 66ch; }
+.plan figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.plan img { width: 100%; height: auto; border-radius: 8px; display: block; }
 </style>
 </head>
 <body>
@@ -209,6 +216,15 @@ tr.sub td { background: var(--accent-soft); font-weight: 600; }
       <figcaption><span class="num">Vista 8 de 8 · Barra y cocina</span><b>Entrada desde el umbral</b><a href="img/vista8.jpg" target="_blank" rel="noopener">Abrir imagen completa</a></figcaption>
     </figure>
   </div>
+</section>
+
+<section class="plan" id="plano" aria-label="Plano de planta">
+  <div class="eyebrow">Plano</div>
+  <h2>Muro divisorio nuevo</h2>
+  <p>En rojo, el muro de tablaroca que se va a instalar: unos 4.99 m a lo largo del lado oriente del descanso médicos, con un retorno de 0.90 m junto a la puerta.</p>
+  <figure>
+    <img src="img/plano-muro.png" alt="Plano de planta con el muro nuevo marcado en rojo" loading="lazy">
+  </figure>
 </section>
 
 <script>
